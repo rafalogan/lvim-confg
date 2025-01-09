@@ -9,9 +9,6 @@ This repository contains the configuration files for LunarVim, a Neovim distribu
 - **Primary Language:** Lua
 - **Default Branch:** main
 - **Owner:** [rafalogan](https://github.com/rafalogan)
-- **Repository URL:** [https://github.com/rafalogan/lvim-confg](https://github.com/rafalogan/lvim-confg)
-- **Created At:** 2025-01-09
-- **Last Push:** 2025-01-09
 
 ### README Outline
 
