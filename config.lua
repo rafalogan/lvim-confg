@@ -11,7 +11,8 @@ vim.opt.relativenumber = true
 vim.opt.clipboard = "unnamedplus"
 vim.opt.conceallevel = 0
 vim.opt.fileencoding = "UTF-8"
-vim.opt.guifont = "monospace:h17"
+vim.opt.guifont = "FiraCode Nerd Font:h30"
+vim.g.neovide_scale_factor = 50.2
 vim.opt.hidden = true
 vim.opt.hlsearch = true
 vim.opt.ignorecase = true
@@ -127,8 +128,6 @@ lvim.builtin.lualine.inactive_sections.lualine_x = { components.location }
 -- --- disable automatic installation of servers
 -- lvim.lsp.installer.setup.automatic_installation.enable = true
 
--- nvim-ts-rainbow rainbow parentheses
--- lvim.builtin.treesitter.rainbow.enable = true
 
 -- active neo tree
 --
@@ -159,11 +158,11 @@ lvim.builtin.lualine.inactive_sections.lualine_x = { components.location }
 --   buf_set_option("omnifunc", "v:lua.vim.lsp.omnifunc")
 -- end
 
--- -- linters and formatters <https://www.lunarvim.org/docs/languages#lintingformatting>
+-- Linters e formatadores <https://www.lunarvim.org/docs/languages#lintingformatting>
 local null_ls = require("null-ls")
 
 local group = vim.api.nvim_create_augroup("lsp_format_on_save", { clear = false })
-local event = "BufWritePre" -- or "BufWritePost"
+local event = "BufWritePre" -- ou "BufWritePost"
 local async = event == "BufWritePost"
 
 null_ls.setup({
@@ -173,7 +172,7 @@ null_ls.setup({
         vim.lsp.buf.format({ bufnr = vim.api.nvim_get_current_buf() })
       end, { buffer = bufnr, desc = "[lsp] format" })
 
-      -- format on save
+      -- Formatação ao salvar
       vim.api.nvim_clear_autocmds({ buffer = bufnr, group = group })
       vim.api.nvim_create_autocmd(event, {
         buffer = bufnr,
@@ -199,10 +198,28 @@ null_ls.setup({
 })
 
 local formatters = require("lvim.lsp.null-ls.formatters")
+
+-- Função para verificar se um arquivo de configuração do Prettier existe
+local function get_prettier_config()
+  local configs = { ".prettierrc", ".prettierrc.json", "prettierrc.json", "prettierrc" }
+
+  for _, config in ipairs(configs) do
+    local path = vim.fn.findfile(config, ".;") -- Procura no diretório do projeto
+    if path ~= "" then
+      return { "--config", path }
+    end
+  end
+
+  return {} -- Usa configurações padrão do Prettier se nenhum arquivo for encontrado
+end
+
 formatters.setup({
   {
     name = "prettier",
-    args = { "--print-with", "140" },
+    args = function()
+      local config_args = get_prettier_config()
+      return vim.list_extend(config_args, { "--print-width", "140" }) -- Mantém a largura de impressão
+    end,
     filetypes = {
       "css",
       "graphql",
@@ -218,26 +235,24 @@ formatters.setup({
       "yaml",
     },
     cli_options = {
-      usefiles = true,
-      arrow_parens = "avoid",
-      bracket_spacing = true,
-      bracket_same_line = false,
-      embedded_language_formatting = "auto",
-      end_of_line = "lf",
-      html_whitespace_sensitivity = "css",
-      -- jsx_bracket_same_line = false,
-      jsx_single_quote = false,
-      print_width = 140,
-      prose_wrap = "preserve",
-      quote_props = "as-needed",
-      semi = true,
-      single_attribute_per_line = false,
-      single_quote = true,
-      tab_width = 2,
-      use_tabs = true,
-      trailing_comma = "all",
-      vue_indent_script_and_style = false,
-      --editorconfig = true
+      -- usefiles = true,
+      -- arrow_parens = "avoid",
+      -- bracket_spacing = true,
+      -- bracket_same_line = false,
+      -- embedded_language_formatting = "auto",
+      -- end_of_line = "lf",
+      -- html_whitespace_sensitivity = "css",
+      -- jsx_single_quote = false,
+      -- print_width = 140,
+      -- prose_wrap = "preserve",
+      -- quote_props = "as-needed",
+      -- semi = true,
+      -- single_attribute_per_line = false,
+      -- single_quote = true,
+      -- tab_width = 2,
+      -- use_tabs = true,
+      -- trailing_comma = "all",
+      -- vue_indent_script_and_style = false,
     },
   },
 })
@@ -522,14 +537,19 @@ lvim.plugins = {
     },
     -- See Commands section for default commands if you want to lazy load on them
   },
+  -- {
+  --   "mrjones2014/nvim-ts-rainbow",
+  -- },
+  { "mg979/vim-visual-multi", branch = "master" },
 }
 
-require("nvim-treesitter.configs").setup {
-  rainbow = {
-    enable = true,
-    extended_mode = true,
-    max_file_lines = nil,
-  }
+-- nvim-ts-rainbow rainbow parentheses
+-- lvim.builtin.treesitter.rainbow.enable = true
+
+-- Mapeamento de teclas macOS
+vim.g.VM_maps = {
+  ["Select Cursor Up"]   = "<C-M-Up>",   -- Ctrl + Option + Up adiciona cursor acima
+  ["Select Cursor Down"] = "<C-M-Down>", -- Ctrl + Option + Down adiciona cursor abaixo
 }
 
 require("toggleterm").setup {
@@ -537,17 +557,6 @@ require("toggleterm").setup {
   direction = "horizontal",
 }
 
--- Lua
--- vim.cmd [[colorscheme tokyonight]]
-
--- -- Autocommands (`:help autocmd`) <https://neovim.io/doc/user/autocmd.html>
--- vim.api.nvim_create_autocmd("FileType", {
---   pattern = "zsh",
---   callback = function()
---     -- let treesitter use bash highlight for zsh files as well
---     require("nvim-treesitter.highlight").attach(0, "bash")
---   end,
--- })
 
 require("nvim-web-devicons").set_icon({
   zsh = {
